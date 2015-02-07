@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content_block %}
+    <div id="form_frame">
+        {% if error %}
+            <p id="link" align="center" class="error">{{ error }}</p>
+        {% endif %}
+        <form action="{% url 'registration' %}" method="post">
+            {% csrf_token %}
+            <input id=" id_username" name="username" type="text" placeholder="Enter the username"><br/>
+            <input id=" id_password" name="password" type="password" placeholder="Enter the password"><br/>
+            <input class="button_to_bounce" type="submit" value="Register">
+        </form>
+        <p align="center"><a id="link" href="{% url 'login' %}">To Login Please click here</a></p>
+    </div>
+{% endblock %}s

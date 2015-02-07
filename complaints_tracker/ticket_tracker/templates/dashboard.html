@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% block content_block %}
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <script type="text/javascript" src="/static/javascript.js"></script>
+    <div class="loader">
+        <div class="loader_gif"></div>
+    </div>
+    <div class="dash_container">
+    <div class="main_section">
+    <div class="main_section_header">
+        <div class="main_section_header_label" align="right">
+            <div class="tabs active_tabs"><a id="dash_link" href="/pending_ticket/">Unresolved
+                Tickets</a></div>
+            <div class="tabs_right non_active_tabs"><a id="dash_link" href="/resolved_ticket/">Resolved
+                Tickets</a></div>
+        </div>
+    </div>
+    <div id="resolving_note">
+        <div><input id="mark_resolved_input" type="text" placeholder="How did you resolve this issue??">
+            <button id="mark_resolved_submit">Commit</button>
+        </div>
+    </div>
+    <div class="main_section_content">
+    <div id="description_section">
+    {% for current_section in status_list %}
+        {% if current_section.name != 'resolved' %}
+            <div class="detail_section" id="{{ current_section.name }}_section">
+            <div class="section_label"
+                 id="{{ current_section.name }}_section_label">{{ current_section.name|title }} Tickets
+                <div class="section_label_counter">count</div>
+            </div>
+            <div class="section_table">
+            <table id="{{ current_section.name }}_section_table">
+            <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Full Name</th>
+                <th>System ID</th>
+                <th>IP Address</th>
+                <th>Issue</th>
+                <th>Issued Day</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned to</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in ticket_list %}
+                {% if i.status.name == current_section.name %}
+                    <tr class="tickets highlighted" ticket_id="{{ i.id }}"
+                        ondblclick="drop_down_comment(this)" title="Double click to check the details">
+                        <td class="ticket_id ticket_id_column">{{ i.id }}</td>
+                        <td class="user_name_column">{{ i.created_by }}</td>
+                        <td class="system_id_column">{{ i.system_id }}</td>
+                        <td class="ipaddress_column">{{ i.ipaddress }}</td>
+                        <td class="complaints_column">
+                            <div class="complaints_box"
+                                 align="left">{{ i.complaints }}</div>
+                        </td>
+                        <td class="complaints_date_column">{{ i.created_on|date:'N d, Y, h:ia' }}</td>
+                        <td class="priority_column">
+                            {% if perms.ticket_tracker.can_assign_ticket %}
+
+                                <select class="priority_selection"
+                                        onchange="priority_update(this)"
+                                        name="priority">
+                            {% else %}
+                                <select class="priority_selection"
+                                        onchange="priority_update(this)"
+                                        name="priority" disabled>
+                            {% endif %}
+                            {% for j in priority %}
+                                {% if i.priority|stringformat:'s' == j|stringformat:'s' %}
+                                    <option value="{{ j }}" selected>{{ j }}</option>
+                                {% else %}
+                                    <option value="{{ j }}">{{ j }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </select>
+                        </td>
+                        <td class="status_column">
+                            {#                                    {% if current_section.name == 'unassigned' %}#}
+                            {#                                        <select class="status_selection"#}
+                            {#                                                onchange="status_update(this)"#}
+                            {#                                                name="status" disabled>#}
+                            {#                                    {% elif i.assigned_to.username|stringformat:'s' != user|stringformat:'s' %}#}
+                            {#                                        {% if perms.ticket_tracker.can_assign_ticket %}#}
+                            {#                                            <select class="status_selection"#}
+                            {#                                                    onchange="status_update(this)"#}
+                            {#                                                    name="status">#}
+                            {#                                        {% else %}#}
+                            {#                                            <select class="status_selection"#}
+                            {#                                                    onchange="status_update(this)"#}
+                            {#                                                    name="status" disabled>#}
+                            {#                                        {% endif %}#}
+                            {#                                    {% else %}#}
+                            {#                                        <select class="status_selection"#}
+                            {#                                                onchange="status_update(this)"#}
+                            {#                                                name="status">#}
+                            {#                                    {% endif %}#}
+                            {#                                    {% for j in status_list %}#}
+                            {#                                        {% if i.status.name|stringformat:'s' == j.name|stringformat:'s' %}#}
+                            {#                                            {% if current_section.name|stringformat:'s' == 'inprocess' and j.name|stringformat:'s' == 'unassigned' %}#}
+                            {#                                            {% else %}#}
+                            {#                                                <option value="{{ j.id }}"#}
+                            {#                                                        selected>{{ j.name }}</option>#}
+                            {#                                            {% endif %}#}
+                            {#                                        {% else %}#}
+                            {#                                            {% if current_section.name|stringformat:'s' == 'inprocess' and j.name|stringformat:'s' == 'unassigned' %}#}
+                            {#                                            {% else %}#}
+                            {#                                                <option value="{{ j.id }}">{{ j.name }}</option>#}
+                            {#                                            {% endif %}#}
+                            {#                                        {% endif %}#}
+                            {#                                    {% endfor %}#}
+                            {#                                    </select>#}
+                            <div>{{ i.status.name }}</div>
+                        </td>
+                        <td class="assigned_to_column">
+                            {% if perms.ticket_tracker.can_assign_ticket %}
+                                <select class="engineers_selection"
+                                        onchange="engineer_update(this)"
+                                        data_engineer_id="{{ i.assigned_to_id }}">
+                                    {% if current_section.name|stringformat:'s' == 'unassigned' %}
+                                        <option default>Assign Engineer</option>
+                                    {% endif %}
+                                    {% for j in engineer_list %}
+                                        {% if i.assigned_to.username|stringformat:'s' == j|stringformat:'s' %}
+                                            <option value="{{ j.id }}"
+                                                    selected>{{ j }}</option>
+                                        {% else %}
+                                            <option value="{{ j.id }}">{{ j }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            {% elif perms.ticket_tracker.self_assign_ticket %}
+                                {#                                        {% if current_section.name|stringformat:'s' == 'unassigned' %}#}
+                                {#                                            <select class="engineers_selection"#}
+                                {#                                                    onchange="engineer_update(this)"#}
+                                {#                                                    data_engineer_id="{{ i.assigned_to_id }}">#}
+                                {#                                        {% else %}#}
+                                {#                                            <select class="engineers_selection"#}
+                                {#                                                    onchange="engineer_update(this)"#}
+                                {#                                                    data_engineer_id="{{ i.assigned_to_id }}"#}
+                                {#                                                    disabled>#}
+                                {#                                        {% endif %}#}
+                                {#                                    {% if i.assigned_to.username %}#}
+                                {#                                        <option default>{{ i.assigned_to.username }}</option>#}
+                                {#                                    {% else %}#}
+                                {#                                        <option default>Assign Engineer</option>#}
+                                {#                                    {% endif %}#}
+                                {#                                    {% if i.assigned_to.username == user|stringformat:'s' %}#}
+                                {#                                        <option value="{{ user.id }}"#}
+                                {#                                                selected>{{ i.assigned_to.username }}#}
+                                {#                                        </option>#}
+                                {#                                    {% else %}#}
+                                {#                                        <option value="{{ user.id }}">Assign to me</option>#}
+                                {#                                    {% endif %}#}
+                                {#                                    </select>#}
+                                {% if current_section.name|stringformat:'s' == 'unassigned' %}
+                                    <button class="mark_assigned" onclick="engineer_update(this)"
+                                            data_engineer_id="{{ user.id }}" data_engineer_name="{{ user }}">Assign to
+                                        me
+                                    </button>
+                                {% else %}
+                                    <button class="mark_assigned"
+                                            data_engineer_id="{{ i.assigned_to_id }}"
+                                            data_engineer_name="{{ i.assigned_to.username }}">{{ i.assigned_to.username }}
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                {#                                <select class=" engineers_selection"#}
+                                {#                                        onchange="engineer_update(this)"#}
+                                {#                                        data_engineer_id="{{ i.assigned_to_id }}"#}
+                                {#                                        disabled>#}
+                                {#                                    {% if current_section.name|stringformat:'s' == 'unassigned' %}#}
+                                {#                                        <option default>Assign Engineer</option>#}
+                                {#                                    {% endif %}#}
+                                {#                                    {% for j in engineer_list %}#}
+                                {#                                        {% if i.assigned_to.username|stringformat:'s' == j|stringformat:'s' %}#}
+                                {#                                            <option value="{{ j.id }}"#}
+                                {#                                                    selected>{{ j }}</option>#}
+                                {#                                        {% else %}#}
+                                {#                                            <option value="{{ j.id }}">{{ j }}</option>#}
+                                {#                                        {% endif %}#}
+                                {#                                    {% endfor %}#}
+                                {#                                </select>#}
+                                {% if current_section.name|stringformat:'s' == 'unassigned' %}
+                                    <button class="mark_assigned">Waiting to be assigned
+                                    </button>
+                                {% else %}
+                                    <button class="mark_assigned" data_engineer_id="{{ i.assigned_to_id }}"
+                                            data_engineer_name="{{ i.assigned_to.username }}">{{ i.assigned_to.username }}
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="resolved_now_column">
+                            <button class="mark_resolved" onclick="popup_commit(this)">Mark Resolved
+                            </button>
+                        </td>
+                    </tr>
+                    {#                                <tr class="tickets comments" ticket_id="{{ i.id }}">#}
+                    {#                                    <td colspan="42">#}
+                    {#                                        <div class="comment_container">#}
+                    {#                                            <div class="comment_header"><span#}
+                    {#                                                    class="issue_topic">Issue:</span>#}
+                    {##}
+                    {#                                                <div class="issue_subject">{{ i.complaints }}</div>#}
+                    {#                                                    <div class="comments_close">#}
+                    {#                                                        <button onclick="close_comment(this)">X</button>#}
+                    {#                                                    </div>#}
+                    {#                                            </div>#}
+                    {#                                            <div class="comment_body_container"><span#}
+                    {#                                                    class="issue_topic">Comments:</span>#}
+                    {##}
+                    {#                                                <div class="comment_body">#}
+                    {#                                                    {% for c in i.comments_set.all %}#}
+                    {#                                                        <div class="inside_comment_body">#}
+                    {#                                                            <span class="date_section">[{{ c.date_of_posted_comment|date:'N d, Y, h:ia' }}]</span>#}
+                    {#                                                            <span class="created_by_section">[{{ c.commentor.username }}]</span>#}
+                    {#                                                            <span class="comment_section">{{ c.comments }}</span>#}
+                    {#                                                        </div>#}
+                    {##}
+                    {#                                                    {% endfor %}#}
+                    {#                                                </div>#}
+                    {#                                            </div>#}
+                    {#                                            <div class="comment_footer">#}
+                    {#                                                <div id="input_comment"><input class="comment_input_region"#}
+                    {#                                                                               type="text"#}
+                    {#                                                                               placeholder="Enter your comments">#}
+                    {#                                                </div>#}
+                    {#                                                <div id="input_submit">#}
+                    {#                                                    <button id="submit_button"#}
+                    {#                                                            onclick="post_comment(this)">#}
+                    {#                                                        Comment#}
+                    {#                                                    </button>#}
+                    {#                                                </div>#}
+                    {#                                            </div>#}
+                    {#                                        </div>#}
+                    {#                                    </td>#}
+                    {#                                </tr>#}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+            </table>
+            </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+    </div>
+
+    </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content_block %}
+    <div id="form_frame" align="center">
+        {% if form.errors %}
+            <p id="link" align="center" class="error">Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        {% if error %}
+            <p id="link" align="center">{{ error }}</p>
+        {% endif %}
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <input id=" id_username" name="username" type="text" placeholder="Enter the username"><br/>
+            <input id=" id_password" name="password" type="password" placeholder="Enter the password"><br/>
+            <input class="button_to_bounce" type="submit" value="Login">
+            <input type="hidden" name="next" value="{% url 'pending_ticket' %}"/>
+        </form>
+        <p align="center"><a id="link" href="{% url 'registration' %}">First time users please click here</a></p>
+    </div>
+
+{% endblock %}

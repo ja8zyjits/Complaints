@@ -1,0 +1,516 @@
+.loader {
+    height: 90%;
+    width: 100%;
+    background: #222;
+    opacity: 0.5;
+    z-index: 100;
+    position: absolute;
+    top: 100px;
+}
+
+.loader_gif {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: inline-block;
+    width: 128px;
+    height: 128px;
+    margin: -64px 0 0 -64px;
+    background: url('/static/media/loader.GIF') no-repeat;
+    -webkit-filter: invert(1);
+    z-index: 115;
+    background-size: contain;
+}
+
+.dash_container {
+    background-color: #333;
+    height: 91vh;
+    margin: 50px auto 0;
+    padding: 0 10px 10px;
+}
+
+#dash_link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+#resolving_note {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: #222;
+    padding: 10px;
+    margin: -100px 0 0 -220px;
+    display: none;
+    z-index: 115;
+}
+
+#mark_resolved_input {
+    display: inline-block;
+    border: none;
+    border-radius: 3px;
+    width: 400px;
+    background-color: #777;
+    color: inherit;
+    font: inherit;
+}
+
+#mark_resolved_submit {
+    border: none;
+    border-radius: 3px;
+    background-color: white;
+    font: inherit;
+}
+
+select {
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+img {
+    cursor: pointer;
+    -webkit-filter: invert(1);
+}
+
+option {
+    color: inherit;
+    background: #444;
+}
+
+.main_section {
+    height: 100%;
+    width: 100%;
+    background-color: #444;
+}
+
+.main_section_header {
+    width: 100%;
+    height: 50px;
+    background-color: #222;
+}
+
+.main_section_header_label {
+    position: relative;
+    top: 8px;
+    margin-right: 10px;
+}
+
+.tabs {
+    display: inline-block;
+    vertical-align: -webkit-baseline-middle;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+    margin-bottom: 3px;
+    font-size: 160%;
+}
+
+.tabs_right {
+    display: inline-block;
+    vertical-align: -webkit-baseline-middle;
+    border-radius: 8px 8px 0 0;
+    padding: 8px;
+    margin-bottom: 3px;
+    margin-left: -4px;
+    font-size: 160%;
+}
+
+.active_tabs {
+    background-color: #444;
+}
+
+.non_active_tabs {
+    background-color: #111;
+}
+
+.main_section_content {
+    height: 90.4%;
+    width: 100%;
+}
+
+.main_section_content.resolved {
+    background-color: #444;
+}
+
+#description_section {
+    height: 99%;
+    width: 100%;
+    background-color: #444;
+}
+
+#left_section {
+    display: inline-block;
+    height: 99.8%;
+    vertical-align: top;
+    background-color: #444;
+    width: 15%;
+}
+
+#search_in_table {
+    display: inline-block;
+    border: none;
+    font-size: inherit;
+    padding: 0;
+}
+
+.filter_section {
+    background-color: #555;
+    height: 49.2%;
+    margin-top: 5px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.filter_section button {
+    border: none;
+    background: none;
+    font: inherit;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+}
+
+.filter_section input[type=submit] {
+    background-repeat: no-repeat;
+    background-image: url("/static/media/search.png");
+    background-size: contain;
+    resize: vertical;
+    width: 16px;
+    height: 16px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.filter_section input[name='download_csv'] {
+    background-image: url("/static/media/download.png");
+}
+
+.filter_section_list {
+    width: 94%;
+    background-color: #666;
+    padding: 6px;
+    margin: 5% auto;
+}
+
+.filter_section_list select {
+    border: none;
+    width: 100%;
+    font: inherit;
+    font-size: inherit;
+}
+
+.filter_section_list.select {
+    padding-left: 1px;
+    width: 96%;
+}
+
+.filter_section input {
+    float: right;
+    border: none;
+    color: inherit;
+    background: none;
+}
+
+.filter_section input[type='text'] {
+    border-bottom: 1px solid #777;
+    width: 80%;
+    float: none;
+}
+
+.filter_section_list_table {
+    border-collapse: collapse;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.filter_section_list_table .left_td {
+    width: 42%;
+    background-color: #666;
+    /*border-bottom: 1px solid #777;*/
+    padding: 2%;
+}
+
+.date_selector {
+    display: inline-block;
+    width: 100%;
+}
+
+.filter_section_list_table .right_td {
+    background-color: #666;
+    border-left: 1px solid #888;
+    width: 5%;
+}
+
+.date_search {
+    height: 100%;
+}
+
+.date_search input[type=submit] {
+    float: none;
+}
+
+#right_section {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    background-color: #444;
+    width: 84.65%;
+}
+
+#right_section ul {
+    margin: 5px;
+}
+
+.hidden_search {
+    display: none;
+}
+
+table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #333;
+    height: 40px;
+}
+
+.ticket_id_column {
+    max-width: 60px;
+    min-width: 30px;
+    padding-left: 5px;
+}
+
+.user_name_column {
+    max-width: 180px;
+    min-width: 120px;
+}
+
+.system_id_column {
+    max-width: 100px;
+    min-width: 60px;
+}
+
+.ipaddress_column {
+    max-width: 80px;
+    min-width: 55px;
+}
+
+.complaints_column {
+    max-width: 160px;
+    min-width: 130px;
+}
+
+.complaints_date_column {
+    max-width: 205px;
+    min-width: 139px;
+}
+
+.priority_column {
+    max-width: 85px;
+    min-width: 65px;
+}
+
+.status_column {
+    max-width: 110px;
+    min-width: 70px;
+}
+
+.assigned_to_column {
+    max-width: 200px;
+    min-width: 140px;
+}
+
+.resolved_now_column {
+    /*width: 25px;*/
+    padding-right: 5px;
+}
+
+.detail_section {
+    background-color: #555;
+    height: 50%;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+/*#unassigned_section .status_section {*/
+/*display: none;*/
+/*}*/
+
+/*#unassigned_section .status_column {*/
+/*display: none;*/
+/*}*/
+
+table .highlighted {
+    background: #555;
+}
+
+.section_label {
+    margin: 0;
+    background-color: #222;
+    font-size: 160%;
+    padding: 10px;
+}
+
+.section_label .section_label_counter {
+    vertical-align: top;
+    display: inline-block;
+    float: right;
+    border-radius: 200px 200px 200px 200px;
+    background-color: #444;
+    padding: 0 15px;
+}
+
+.section_table {
+    height: 100%;
+}
+
+.detail_section_resolved {
+    background-color: #555;
+    height: 100%;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.detail_section_resolved .section_table {
+    height: 100%;
+}
+
+tr.tickets {
+    border-bottom: 1px solid #666;
+    height: 40px;
+}
+
+.complaints_box {
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mark_assigned {
+    border: none;
+    border-radius: 3px;
+    background-color: rgb(53, 51, 87);
+    width: 100%;
+    height: 80%;
+    font: inherit;
+    color: inherit;
+}
+
+.mark_resolved {
+    border: none;
+    border-radius: 3px;
+    background-color: white;
+    width: 100%;
+    height: 80%;
+    font: inherit;
+}
+
+.priority_selection {
+    width: 85%;
+    padding: 5px;
+    text-align: center;
+}
+
+.resolved_by {
+    display: inline-block;
+    background-color: white;
+    color: black;
+    text-align: center;
+    padding: 7px;
+    width: 87%;
+    border-radius: 3px;
+}
+
+.date_section {
+    color: #333;
+}
+
+.user_name_section {
+    color: #333;
+}
+
+select {
+    background: none;
+    width: 100%;
+}
+
+.custom_boxes {
+    background: none;
+    width: 100px;
+    border: 1px solid rgb(163, 163, 163);
+    margin: 0px;
+}
+
+.main_section_footer {
+    width: 100%;
+    background-color: #222;
+    margin-top: 2px;
+}
+
+.main_section_footer_label {
+    position: relative;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #222;
+}
+
+@media screen and (max-width: 1500px), (max-height: 750px) {
+    body {
+        font-size: 12px;
+    }
+
+    .tabs {
+        padding: 10px;
+    }
+
+    .tabs_right {
+        padding: 10px;
+    }
+
+    .filter_section_list {
+        padding: 10px;
+    }
+
+    .filter_section_list.select {
+        padding-left: 5px;
+    }
+
+    .filter_section_list input {
+        font-size: inherit;
+    }
+
+    .filter_section_list input[type='submit'] {
+        height: 15px;
+        width: 15px;
+    }
+
+    .issue_subject {
+        width: 90%;
+    }
+
+    .filter_section input[type='text'] {
+        font-size: inherit;
+        padding-left: 5px;
+    }
+}

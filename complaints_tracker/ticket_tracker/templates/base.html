@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="/static/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" href="/static/jui/jquery-ui.css">
+    <link rel="stylesheet" href="/static/jui/jquery-ui.structure.css">
+    <link rel="stylesheet" href="/static/jui/jquery-ui.theme.css">
+    <script type="text/javascript" src="/static/jui/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/datatables.js"></script>
+    <link rel="stylesheet" href="/static/base.css">
+    <title>Ticket Registration</title>
+
+    <script type="text/javascript">
+        var csrf_token = '{{ csrf_token }}';
+        var is_admin = "";
+        var is_engineer = "";
+        var is_user = "";
+        {% if perms.ticket_tracker.can_assign_ticket %}
+            is_admin = 'TRUE';
+        {% elif perms.ticket_tracker.self_assign_ticket %}
+            is_engineer = 'TRUE';
+        {% elif perms.ticket_tracker.view_ticket_tracker %}
+            is_user = 'TRUE';
+        {% endif %}
+    </script>
+
+</head>
+<body>
+<div id="container">
+    <div id="header">
+        {% if user.is_anonymous %}
+        {% else %}
+            <div class="header_left_section" onclick="location.href='{% url 'pending_ticket' %}'"> {{ user }} </div>
+        {% endif %}
+        {% if user.is_anonymous %}
+            <div class="header_right_section" onclick="location.href='{% url 'login' %}'">login</div>
+            <div class="header_right_section" onclick="location.href='{% url 'registration' %}'">Register</div>
+        {% else %}
+            <div class="header_right_section" onclick="location.href='{% url 'logout' %}'">logout</div>
+            <div class="header_right_section" id="complaints_dialog">New Issue</div>
+        {% endif %}
+        {% if perms.ticket_tracker.can_assign_ticket %}
+            <div class="header_right_section" onclick="location.href='/admin/'">Admin Panel</div>
+        {% endif %}
+    </div>
+    {% if user.is_anonymous %}
+    {% else %}
+        <div class="background_disable"></div>
+        <div id="notification"></div>
+        <div id="popup_complaint_raiser" title="Raise an issue here">
+            <div class="popup_header">
+                New Issue<img src="/static/media/close.png" onclick="closeall()">
+            </div>
+            <div class="popup_content">
+                <form action="/ticket/" method="get">
+                    <fieldset>
+                        <input type="text" name="username" id="username_pop" value="{{ user }}" readonly>
+                        <input type="text" name="system_id" id="system_id_pop" placeholder="Enter your system id"
+                               required>
+                        <textarea name="complaints" id="complaints_pop" placeholder="Write your complaint here"
+                                  required></textarea>
+                        <input type="submit" id='submit' value="New issue">
+                        <input type="reset" id='reset' value="close">
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        <div id="popup_comments">
+            <div id="popup_comments_header"><span>Description for Ticket ID:</span><span id="ticket_id"></span>
+
+                <div class="comments_close">
+                    <img src="/static/media/close.png" onclick="close_comment(this)">
+                </div>
+            </div>
+
+
+            <div class="comment_container">
+
+                <div class="comment_header"><span
+                        class="issue_topic">Issue:</span>
+
+                    <div class="issue_subject"></div>
+
+                </div>
+                <div class="comment_body_container"><span
+                        class="issue_topic">Comments:</span>
+
+                    <div class="comment_body">
+                    </div>
+                </div>
+                <div class="comment_footer">
+                    <div id="input_comment"><input class="comment_input_region" type="text"
+                                                   placeholder="Enter your comments">
+                    </div>
+                    <div id="input_submit">
+                        <button id="submit_button"
+                                onclick="post_comment(this)">
+                            Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% block content_block %}
+    {% endblock %}
+</div>
+</body>
+</html>
