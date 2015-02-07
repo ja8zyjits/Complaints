@@ -4,6 +4,6 @@ If you wish to use this project in your organization just follow these steps
 1>Download the entire complaints_tracker
 2>In complaints_tracker/complaints_tracker settings.py change your sql driver and password
 3>Create a database named complaints in your sql
-4>after migrating the models populate the table 'status' with 'unassiged' , 'assigned' , 'resolved'
+4>after migrating the models populate the table 'TicketStatus' with 'unassiged' , 'assigned' , 'resolved'
 5>run the server
 
