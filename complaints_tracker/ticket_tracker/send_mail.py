@@ -171,11 +171,11 @@ def send_re_assigned_mail(query_object):
         print e.args
 
 
-def send_mail(query_object, action):
+def send_mail1(query_object, action):
     pass
 
 
-def send_mail1(query_object, action):
+def send_mail(query_object, action):
     try:
         fromaddr = "jitesh.nair@gmail.com"
         to_list = User.objects.filter(groups__name='engineers')
