@@ -1,12 +1,15 @@
-from websocket import create_connection
 import json
+import sys
+
+from websocket import create_connection
 
 
-def broadcast(user_id, location, function):
+def broadcast(**kwargs):
     try:
         ws = create_connection('ws://localhost:8000/chat', timeout=0.5)
-        message = {'user_id': user_id, 'location': location, 'function': function}
+        message = {k: v for k, v in kwargs.items()}
         ws.send(json.dumps(message))
         ws.close()
     except Exception, e:
-        pass
+        print 'Error on line {}'.format(sys.exc_info()[-1].tb_lineno)
+        print e.args

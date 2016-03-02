@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content_block %}
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <script type="text/javascript" src="/static/javascript.js"></script>
+    <div class="loader">
+        <div class="loader_gif"></div>
+    </div>
+    <div style="width:80%;margin: auto;position: relative;top: 50px">
+        <table>
+            <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Full Name</th>
+                <th>System ID</th>
+                <th>IP Address</th>
+                <th>Issue</th>
+                <th>Issued Day</th>
+                <th>Priority</th>
+                <th class="status_section">Status</th>
+                <th>Assigned to</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in ticket_list %}
+                <tr>
+                    <td>{{ i.id }}</td>
+                    <td>{{ i.user_name }}</td>
+                    <td>{{ i.system_id }}</td>
+                    <td>{{ i.ipaddress }}</td>
+                    <td>
+                        <div style="display: inline-block;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;width: 160px"
+                             align="left">{{ i.complaints }}</div>
+                    </td>
+                    <td>{{ i.complaints_registered_date|date:'N d, Y, h:ia' }}</td>
+                    <td>
+                        <select>
+                            {% for j in priority %}
+                                {% if i.priority|stringformat:'s' == j|stringformat:'s' %}
+                                    <option value="{{ j }}" selected>{{ j }}</option>
+                                {% else %}
+                                    <option value="{{ j }}">{{ j }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select>
+                            {% for j in status_list %}
+                                {% if i.status.name|stringformat:'s' == j.name|stringformat:'s' %}
+                                    <option value="{{ j.id }}"
+                                            selected>{{ j.name }}</option>
+                                {% else %}
+                                    <option value="{{ j.id }}">{{ j.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="engineers_selection"
+                                onchange="engineer_update(this)"
+                                data_engineer_id="{{ i.engineers_id }}">
+                            {% for j in engineer_list %}
+                                {% if i.engineers.username|stringformat:'s' == j|stringformat:'s' %}
+                                    <option value="{{ j.id }}"
+                                            selected>{{ j }}</option>
+                                {% else %}
+                                    <option value="{{ j.id }}">{{ j }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="coment_pic_column"><img
+                            src="/static/media/comments.png" title="comments"
+                            onclick="drop_down_comment(this)"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

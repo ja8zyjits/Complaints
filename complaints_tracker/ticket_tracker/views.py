@@ -235,14 +235,14 @@ def resolved_ticket(request):
 # if priority != '':
 # ticket.priority = priority.lower()
 # action = 'updated priority to %s' % priority
-#             # elif TicketStatus != '':
-#             # ticket.status_id = int(TicketStatus)
-#             # action = 'updated TicketStatus to %s' % data['status_text']
-#             # if data['status_text'].lower() == 'resolved':
-#             # ticket.save()
-#             # # send_resolved_mail(ticket)
-#             # elif data['status_text'].lower() == 'inprocess':
-#             # ticket.save()
+# # elif TicketStatus != '':
+# # ticket.status_id = int(TicketStatus)
+# # action = 'updated TicketStatus to %s' % data['status_text']
+# # if data['status_text'].lower() == 'resolved':
+# # ticket.save()
+# # # send_resolved_mail(ticket)
+# # elif data['status_text'].lower() == 'inprocess':
+# # ticket.save()
 #             # # send_re_assigned_mail(ticket)
 #             elif engineer_to_change != '':
 #                 if ticket.status.name == 'unassigned':

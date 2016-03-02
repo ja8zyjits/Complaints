@@ -6,7 +6,7 @@ $(function () {
     if (!is_admin) {
         $('#general_filter').css('height', '99%')
     }
-
+    WebSocketConnection();
     $('#start_date').datepicker({
         dateFormat: "yy-mm-dd"
     });
@@ -112,6 +112,29 @@ $(function () {
     remove_double_click($('.assigned_to_column'));
     remove_double_click($('.priority_column'));
 });
+function WebSocketConnection() {
+    var ws = new WebSocket("ws://localhost:8000/chat");
+    notification('Connected to Server');
+    ws.onmessage = function (e) {
+        var message = JSON.parse(e.data);
+        //console.log('here' + user + ':got the message' + message['user']);
+        if (user != message['user']) {
+            if (message['function'] == 'delete_resolved_row') {
+                window[message['function']](message['ticket_id']);
+            }
+            else if (message['function'] == 'change_row') {
+                window[message['function']](message['ticket_id'], message['engineer_id'], message['engineer_name']);
+            }
+            else {
+                notification(message);
+            }
+        }
+    }
+    ws.onclose = function (e) {
+        //WebSocketConnection();
+        notification(e.data);
+    }
+}
 function remove_double_click(obj) {
     var object = obj;
     var chk = $(obj).parents('#resolved_section');
@@ -121,14 +144,14 @@ function remove_double_click(obj) {
         });
     }
 }
-function after_datatabe_initialization() {
-    $('.dataTables_scroll').css('height', '100%');
-    $(window).bind('resize', function () {
-        $(table_list).each(function (i, p) {
-            table_list[i].fnAdjustColumnSizing();
-        });
-    });
-}
+//function after_datatabe_initialization() {//not used anymore
+//    $('.dataTables_scroll').css('height', '100%');
+//    $(window).bind('resize', function () {
+//        $(table_list).each(function (i, p) {
+//            table_list[i].fnAdjustColumnSizing();
+//        });
+//    });
+//}
 function notification(string) {
     $('#notification').text(string);
     $('#notification').fadeIn().delay(2000).fadeOut(function () {
@@ -218,17 +241,7 @@ function mark_resolve(obj) {
                 data: JSON.stringify(data)
             },
             success: function (comments) {
-                notification('Success fully Marked Resolved');
-                var section_id = $(".tickets[ticket_id='" + data.ticket_id + "']").parents('table').attr('id');
-                $(".tickets[ticket_id='" + data.ticket_id + "']").find('.complaints_box').parents("tr").fadeOut("slow", function () {
-                    var object = this;
-                    $(table_list).each(function (i, p) {
-                        if (table_list[i].attr('id') == section_id) {
-                            var pos = table_list[i].fnGetPosition(object);
-                            table_list[i].fnDeleteRow(pos, null, true);//it will automatically redraw the table, and on draw it will trigger the on(draw) function
-                        }
-                    });
-                });
+                delete_resolved_row(data.ticket_id);
                 $('#mark_resolved_input').val('');
                 $('#resolving_note').fadeToggle();
                 $('.background_disable').fadeToggle();
@@ -236,12 +249,54 @@ function mark_resolve(obj) {
             },
             error: function (data) {
                 alert(data.responseText);
+                ticket_id_for_comments = '';
             }
         });
     }
     else {
         notification('please enter valid comment to mark resolved!!');
     }
+}
+function delete_resolved_row(ticket_id) {//requires to build a row if window.location.path==/resolved_ticket
+    notification('Ticket id:' + ticket_id + '-Was success fully Marked Resolved');
+    var section_id = $(".tickets[ticket_id='" + ticket_id + "']").parents('table').attr('id');
+    $(".tickets[ticket_id='" + ticket_id + "']").find('.complaints_box').parents("tr").fadeOut("slow", function () {
+        var object = this;
+        $(table_list).each(function (i, p) {
+            if (table_list[i].attr('id') == section_id) {
+                var pos = table_list[i].fnGetPosition(object);
+                table_list[i].fnDeleteRow(pos, null, true);//it will automatically redraw the table, and on draw it will trigger the on(draw) function
+            }
+        });
+    });
+}
+function add_resolved_row(message) {
+    $(table_list).each(function (i, p) {
+        if (table_list[i].attr('id') == 'resolved_section_table') {
+            var assigned_to = "";
+            var assigned_to_id = "";
+            if (message['assigned_to'] == null) {
+                assigned_to = 'User Resolved';
+                assigned_to_id = message['created_by'];
+            }
+            else {
+                assigned_to = message['assigned_to_name'];
+                assigned_to_id = message['assigned_to'];
+            }
+            var row = "<tr class='tickets highlighted' ticket_id=" + message['ticket_id'] + " ondblclick='drop_down_comment(this)' title='Double click to check the details'>" +
+                "<td class='ticket_id ticket_id_column'>" + message['ticket_id'] + "</td>" +
+                "<td class='user_name_column'>" + message['created_by_name'] + "</td>" +
+                "<td class='system_id_column'>" + message['system_id'] + "</td>" +
+                "<td class='ipaddress_column'>" + message['ipaddress'] + "</td>" +
+                "<td class='complaints_column'><div class='complaints_box' align='left'>" + message['complaints'] + "</div></td>" +
+                "<td class='complaints_date_column'>" + message['created_on'] + "</td>" +
+                "<td class='priority_column'><div class='priority_selection'>" + message['priority'] + "</div></td>" +
+                "<td class='status_column'>" + message['status'] + "</td>" +
+                "<td class='assigned_to_column'><button class='mark_assigned' data_engineer_id=" + assigned_to_id + " data_engineer_name=" + assigned_to + ">" + assigned_to + "</button></td>" +
+                "<td class='resolved_now_column'><div class='resolved_by' data_engineer_id=" + message['resolved_by'] + ">" + message['resolved_by_name'] + "</div></td>" +
+                "</tr>"
+        }
+    });
 }
 window.priority_update = function (obj) {
     var data = new Object();
@@ -257,7 +312,8 @@ window.priority_update = function (obj) {
             },
             success: function (comment) {
 //                alert(comment.action + ' update priority successfully');
-                $(obj).parents('.tickets').next().find('.comment_body').append(comments_template(comment));
+                notification(comment.action);
+//                $(obj).parents('.tickets').next().find('.comment_body').append(comments_template(comment));
                 update_priority_color($(obj).parents('.detail_section').attr('id'));
             },
             error: function (data) {
@@ -267,7 +323,7 @@ window.priority_update = function (obj) {
     }
 }
 
-window.status_update = function (obj) {
+window.status_update = function (obj) {//not in use anymore
     var data = new Object();
     data.status = $(obj).find('option:selected').val();
     data.status_text = $(obj).find('option:selected').text();
@@ -300,24 +356,23 @@ window.status_update = function (obj) {
         });
     }
 }
-
+function update_button(engineer, engineer_name) {
+    var update_button = "" +
+        "<button class='mark_assigned'" +
+        "data_engineer_id='" + engineer + "'" +
+        "data_engineer_name='" + engineer_name + "'>" + engineer_name + "" +
+        "</button>";
+    return update_button;
+}
 window.engineer_update = function (obj) {
-    var div_flag = false;
     var data = new Object();
     data.engineer = $(obj).find('option:selected').val();
     data.engineer_name = $(obj).find('option:selected').text();
     var pattern = /\d+/;
     var pattern2 = /\w+/;
-    var update_button = '';
     if (!pattern.test(data.engineer) && !pattern2.test(data.engineer_name)) {
         data.engineer = $(obj).attr('data_engineer_id');
         data.engineer_name = $(obj).attr('data_engineer_name');
-        div_flag = true;
-        update_button = "" +
-            "<button class='mark_assigned'" +
-            "data_engineer_id='" + data.engineer + "'" +
-            "data_engineer_name='" + data.engineer_name + "'>" + data.engineer_name + "" +
-            "</button>";
     }
 //    console.log(div_flag);
 //    console.log('1', data.engineer, data.engineer_name, pattern.test(data.engineer));
@@ -331,48 +386,10 @@ window.engineer_update = function (obj) {
                 data: JSON.stringify(data)
             },
             success: function (comment) {
-                notification(comment.time_of_action + ' update status successfully');
+
 //                $(obj).parents('.tickets').next().find('.comment_body').append(comments_template(comment));
                 if ($(obj).parents('div .detail_section').attr('id') == 'unassigned_section') {
-                    var row_displaced = $(".tickets[ticket_id='" + data.ticket_id + "']");
-                    var section_id = $(obj).parents('table').attr('id');
-                    row_displaced.find('.complaints_box').parents("tr").fadeOut("slow", function () {
-                        var object = this;
-                        $(table_list).each(function (i, p) {
-                            if (table_list[i].attr('id') == section_id) {
-                                var pos = table_list[i].fnGetPosition(object);
-                                if (div_flag) {
-                                    table_list[i].fnUpdate(update_button, pos, 8);
-                                }
-                                table_list[i].fnUpdate('inprocess', pos, 7);
-                                table_list[i].fnDeleteRow(pos, insert_row(object), true);//it will automatically redraw the table, and on draw it will trigger the on(draw) function
-                            }
-                        });
-                    });
-//                    row_displaced.insertAfter('#inprocess_section_table tbody tr:first');
-                    function insert_row(obj) {
-                        $(table_list).each(function (i, p) {
-                            if (table_list[i].attr('id') == 'inprocess_section_table') {
-                                table_list[i].fnAddData(obj);
-                                $(obj).fadeIn();
-                                var value = table_list[i].fnSettings().fnRecordsDisplay();//to avoid last column shrink
-                                if (value == 1) {
-                                    table_list[i].fnAdjustColumnSizing();
-                                }
-                            }
-                        });
-                    }
-
-                    row_displaced.find(".status_selection option[value='1']").remove();
-                    row_displaced.find('.status_selection').prop('disabled', false);
-                    row_displaced.find(".priority_selection option[default]").remove();
-                    if (is_user == "TRUE") {
-                        $(".tickets[ticket_id='" + data.ticket_id + "']").find('select.engineers_selection').prop('disabled', true);
-                    }
-                    $('#description_section').find('.detail_section').each(function () {
-                        update_counter(this.id);
-                        update_priority_color(this.id);
-                    });
+                    change_row(data.ticket_id, data.engineer, data.engineer_name);
                 }
             },
             error: function (data) {
@@ -380,6 +397,51 @@ window.engineer_update = function (obj) {
             }
         });
     }
+}
+function change_row(ticket_id, engineer, engineer_name) {
+    var row_displaced = $(".tickets[ticket_id='" + ticket_id + "']");
+    //var section_id = $(obj).parents('table').attr('id');
+    var section_id = row_displaced.parents('table').attr('id');
+    row_displaced.find('.complaints_box').parents("tr").fadeOut("slow", function () {
+        var object = this;
+        $(table_list).each(function (i, p) {
+            if (table_list[i].attr('id') == section_id) {
+                var pos = table_list[i].fnGetPosition(object);
+                if (is_admin != 'TRUE') {
+                    var update_button1 = update_button(engineer, engineer_name);
+                    table_list[i].fnUpdate(update_button1, pos, 8);
+                }
+                table_list[i].fnUpdate('inprocess', pos, 7);
+                table_list[i].fnDeleteRow(pos, insert_row(object), true);//it will automatically redraw the table, and on draw it will trigger the on(draw) function
+                $(".tickets[ticket_id=" + ticket_id + "]").find("select.engineers_selection option[value=" + engineer + "]").attr('selected', true)
+            }
+        });
+    });
+//                    row_displaced.insertAfter('#inprocess_section_table tbody tr:first');
+
+    row_displaced.find(".status_selection option[value='1']").remove();
+    row_displaced.find('.status_selection').prop('disabled', false);
+    row_displaced.find(".priority_selection option[default]").remove();
+    if (is_user == "TRUE") {
+        $(".tickets[ticket_id='" + ticket_id + "']").find('select.engineers_selection').prop('disabled', true);
+    }
+    $('#description_section').find('.detail_section').each(function () {
+        update_counter(this.id);
+        update_priority_color(this.id);
+    });
+    notification('Ticket Id: ' + ticket_id + ' was assigned successfully successfully');
+}
+function insert_row(obj) {
+    $(table_list).each(function (i, p) {
+        if (table_list[i].attr('id') == 'inprocess_section_table') {
+            table_list[i].fnAddData(obj);
+            $(obj).fadeIn();
+            var value = table_list[i].fnSettings().fnRecordsDisplay();//to avoid last column shrink  when a row is inerted first time
+            if (value == 1) {
+                table_list[i].fnAdjustColumnSizing();
+            }
+        }
+    });
 }
 var ticket_id_for_comments = '';
 window.drop_down_comment = function (obj) {
@@ -415,7 +477,7 @@ window.drop_down_comment = function (obj) {
                 $('.comment_container').find('.comment_body_container').scrollTop(0);
                 if (!$('#popup_comments').is(":hidden")) {
                     $('.comment_container').find('input').focus();
-                    $('.comment_body_container').animate({ scrollTop: $('.comment_container').find('.comment_body_container').prop('scrollHeight')}, 1000);
+                    $('.comment_body_container').animate({scrollTop: $('.comment_container').find('.comment_body_container').prop('scrollHeight')}, 1000);
                 }
             },
             error: function (data) {
@@ -452,7 +514,7 @@ window.post_comment = function (obj) {
 //                alert(comment.time_of_action + ' update status successfully');
                 $(obj).parents('.comment_container').find('.comment_body').append(comments_template(comment));
                 $(obj).parents('.comment_footer').find('.comment_input_region').val('');
-                $(obj).parents('.comment_container').find('.comment_body_container').animate({ scrollTop: $(obj).parents('.comment_container').find('.comment_body_container').prop('scrollHeight')}, 1000);
+                $(obj).parents('.comment_container').find('.comment_body_container').animate({scrollTop: $(obj).parents('.comment_container').find('.comment_body_container').prop('scrollHeight')}, 1000);
             },
             error: function (data) {
                 alert(data.responseText);
